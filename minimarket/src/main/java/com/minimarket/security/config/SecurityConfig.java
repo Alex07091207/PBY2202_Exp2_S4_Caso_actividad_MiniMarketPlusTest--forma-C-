@@ -24,7 +24,12 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Deshabilita CSRF con la nueva sintaxis
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**").permitAll() // Permitir acceso público
+                        .requestMatchers("/public/**").permitAll()
+                        //Agregamos la restricción de que SOLO los ADMIN pueden modificar (PUT) productos
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/productos/**").hasAuthority("ADMIN")
+                        //Agregamos restricciones para que SOLO los CAJEROS puedan registrar ventas y SOLO los ADMIN puedan registrar movimientos de inventario
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/ventas/**").hasAuthority("CAJERO")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/inventario/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated() // Requiere autenticación para el resto
                 )
                 .formLogin(form -> form
